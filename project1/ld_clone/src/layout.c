@@ -1,6 +1,6 @@
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/ld_clone/include/layout.h"
-#include "c:/users/dhruv/documents/project1/ld_clone/include/linker.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/layout.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/linker.h"
 
 void plan_layout(Parsed_Object *obj, Global_SymTab *gst, Memory_Layout *layout){
     

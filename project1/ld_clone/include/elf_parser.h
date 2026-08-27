@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/elf64.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/elf64.h"
 
 typedef struct{
     uint8_t *raw_data;

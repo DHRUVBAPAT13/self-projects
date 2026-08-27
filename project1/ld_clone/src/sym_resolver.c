@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/ld_clone/include/sym_resolver.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/sym_resolver.h"
 
 void global_symtab_init(Global_SymTab *gst){
     gst->head = NULL;

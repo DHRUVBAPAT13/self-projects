@@ -1,4 +1,4 @@
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/lexer.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/lexer.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>

@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "c:/users/dhruv/documents/project1/ld_clone/include/elf_parser.h"
-#include "c:/users/dhruv/documents/project1/ld_clone/include/sym_resolver.h"
-#include "c:/users/dhruv/documents/project1/ld_clone/include/layout.h"
-#include "c:/users/dhruv/documents/project1/ld_clone/include/relocate.h"
-#include "c:/users/dhruv/documents/project1/ld_clone/include/linker.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/elf_parser.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/sym_resolver.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/layout.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/relocate.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/linker.h"
 
 int main(int argc, char **argv){
 

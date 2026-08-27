@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/ld_clone/include/elf_parser.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/elf_parser.h"
 
 int parse_object_file(const char *filename, Parsed_Object *obj){
     memset(obj, 0, sizeof(Parsed_Object));

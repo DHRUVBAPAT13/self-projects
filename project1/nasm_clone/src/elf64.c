@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/elf64.h"
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/encoder.h"
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/symtab.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/elf64.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/encoder.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/symtab.h"
 
 void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Table *st){
     FILE *f = fopen(filename, "wb");
@@ -78,7 +78,7 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     shdrs[4].sh_info = 1;
     shdrs[4].sh_addralign = 8;
     shdrs[4].sh_entsize = sizeof(Elf64_Rela);
-    offset += shdrs[3].sh_size;
+    offset += shdrs[4].sh_size;
 
     // .symtab
     shdrs[5].sh_name = 29;
@@ -89,7 +89,7 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     shdrs[5].sh_info = 1;
     shdrs[5].sh_addralign = 8;
     shdrs[5].sh_entsize = sizeof(Elf64_Sym);
-    offset += shdrs[4].sh_size;
+    offset += shdrs[5].sh_size;
 
     // .strtab
     shdrs[6].sh_name = 37;
@@ -136,6 +136,7 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     if(prog->data_len > 0) fwrite(prog->data_bytes, 1, prog->data_len, f);
     if(prog->rela_count > 0) fwrite(prog->relas, 1, shdrs[3].sh_size, f);
 
+    fwrite(syms, 1, shdrs[5].sh_size, f);
     fwrite(strtab_data, 1, strtab_len, f);
     fwrite(shstrtab_data, 1, shstrtab_len, f);
     fwrite(shdrs, 1, sizeof(shdrs), f);

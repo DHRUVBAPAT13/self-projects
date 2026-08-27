@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/symtab.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/symtab.h"
 
 void symtab_init(Symbol_Table *st){
     st->head = NULL;

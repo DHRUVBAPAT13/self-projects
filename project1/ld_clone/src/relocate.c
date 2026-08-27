@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/ld_clone/include/relocate.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/relocate.h"
 
 int apply_relocations(Parsed_Object *obj, Global_SymTab *gst, const Memory_Layout *layout){
     if(!obj->relas || obj->rela_count == 0) return 0;

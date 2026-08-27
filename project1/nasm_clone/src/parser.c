@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/parser.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/parser.h"
 
 #ifdef _WIN32
 #define strcasecmp _stricmp

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/ld_clone/include/linker.h"
+#include "/workspaces/self-projects/project1/ld_clone/include/linker.h"
 
 int write_elf64_execultable(const char *outfile, Parsed_Object *obj, const Memory_Layout *layout){
 

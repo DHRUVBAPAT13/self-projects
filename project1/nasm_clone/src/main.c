@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/lexer.h"
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/parser.h"
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/encoder.h"
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/symtab.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/lexer.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/parser.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/encoder.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/symtab.h"
 
 extern void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Table *st);
 

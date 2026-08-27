@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "c:/users/dhruv/documents/project1/nasm_clone/include/encoder.h"
+#include "/workspaces/self-projects/project1/nasm_clone/include/encoder.h"
 
 void encode_program_init(Encoded_Program *prog){
     prog->text_capacity = 4096;
