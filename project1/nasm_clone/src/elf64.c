@@ -66,7 +66,7 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     shdrs[3].sh_type = SHT_NOBITS;
     shdrs[3].sh_flags = SHF_ALLOC | SHF_WRITE;
     shdrs[3].sh_offset = offset;
-    shdrs[3].sh_size = prog->bss_size;
+    shdrs[3].sh_size = prog->bss_len;
     shdrs[3].sh_addralign = 16;
 
     // .rela.text (Index 4)
