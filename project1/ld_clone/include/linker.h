@@ -14,13 +14,13 @@
 #pragma pack(push, 1)
 
 typedef struct{
-    uint32_t p_types;
+    uint32_t p_type;
     uint32_t p_flags;
     uint64_t p_offset;
     uint64_t p_vaddr;
     uint64_t p_paddr;
-    uint64_t p_filesize;
-    uint64_t p_memsize;
+    uint64_t p_filesz;
+    uint64_t p_memsz;
     uint64_t p_align;
 
 }Elf64_Phdr;

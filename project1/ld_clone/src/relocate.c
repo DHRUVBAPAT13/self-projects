@@ -37,7 +37,7 @@ int apply_relocations(Parsed_Object *obj, Global_SymTab *gst, const Memory_Layou
         uint8_t *patch_loc = obj->text_data + rela->r_offset;
 
         // R_X86_64_64 : 64-bit absolute address (S + A)
-        if(type = R_X86_64_64){
+        if(type == R_X86_64_64){
             uint64_t value = target_vaddr + rela->r_addend;
             memcpy(patch_loc, &value, sizeof(uint64_t));
         }

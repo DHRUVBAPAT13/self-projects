@@ -16,10 +16,10 @@ int write_elf64_execultable(const char *outfile, Parsed_Object *obj, const Memor
 
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
 
-    ehdr.e_ident[0] = EI_MAG0;
-    ehdr.e_ident[1] = EI_MAG1;
-    ehdr.e_ident[2] = EI_MAG2;
-    ehdr.e_ident[3] = EI_MAG3;
+    ehdr.e_ident[0] = 0x7f;
+    ehdr.e_ident[1] = 'E';
+    ehdr.e_ident[2] = 'L';
+    ehdr.e_ident[3] = 'F';
     ehdr.e_ident[4] = ELFCLASS64;
     ehdr.e_ident[5] = ELFDATA2LSB;
     ehdr.e_ident[6] = EV_CURRENT;
@@ -33,7 +33,7 @@ int write_elf64_execultable(const char *outfile, Parsed_Object *obj, const Memor
     ehdr.e_shoff = 0;
     ehdr.e_flags = 0;
     ehdr.e_ehsize = sizeof(Elf64_Ehdr);
-    ehdr.e_phentsize = sizeof(Elf64_Ehdr);
+    ehdr.e_phentsize = sizeof(Elf64_Phdr);
     ehdr.e_phnum = 1;  // single PT_LOAD segment
     ehdr.e_shentsize = 0;
     ehdr.e_shnum = 0;
@@ -45,13 +45,13 @@ int write_elf64_execultable(const char *outfile, Parsed_Object *obj, const Memor
 
     memset(&phdr, 0, sizeof(Elf64_Phdr));
 
-    phdr.p_types = PT_LOAD;
+    phdr.p_type = PT_LOAD;
     phdr.p_flags = PF_R | PF_W | PF_X ; // read, write and execute
     phdr.p_offset = 0;
     phdr.p_vaddr = layout->base_vaddr;
     phdr.p_paddr = layout->base_vaddr;
-    phdr.p_filesize = layout->total_file_size;
-    phdr.p_memsize = layout->total_mem_size;
+    phdr.p_filesz = layout->total_file_size;
+    phdr.p_memsz = layout->total_mem_size;
     phdr.p_align = 0x1000;
 
     // 3. write headers and initialized data only (.text and .data)
@@ -61,7 +61,7 @@ int write_elf64_execultable(const char *outfile, Parsed_Object *obj, const Memor
     if((obj->text_size > 0) && (obj->text_data)){
         fwrite(obj->text_data, 1, obj->text_size, f);
     }
-    else if((obj->data_size > 0) && (obj->data_data)){
+    if((obj->data_size > 0) && (obj->data_data)){
         fwrite(obj->data_data, 1, obj->data_size, f);
     }
 

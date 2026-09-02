@@ -6,6 +6,18 @@
 #include "/workspaces/self-projects/project1/nasm_clone/include/encoder.h"
 #include "/workspaces/self-projects/project1/nasm_clone/include/symtab.h"
 
+// Helper to pad file offset to an alignment boundary
+static uint64_t align_file_offset(FILE *f, uint64_t current_offset, uint64_t align) {
+    if (align <= 1) return current_offset;
+    uint64_t aligned = (current_offset + align - 1) & ~(align - 1);
+    uint64_t diff = aligned - current_offset;
+    if (diff > 0) {
+        static const uint8_t zeros[64] = {0};
+        fwrite(zeros, 1, diff, f);
+    }
+    return aligned;
+}
+
 void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Table *st) {
     FILE *f = fopen(filename, "wb");
     if (!f) {
@@ -19,18 +31,24 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     char strtab_data[512] = "\0";
     size_t strtab_len = 1;
 
-    Elf64_Sym syms[16];
+    Elf64_Sym syms[32];
     memset(syms, 0, sizeof(syms));
-    int sym_count = 1;
+    int sym_count = 1; // Index 0 is always STN_UNDEF
 
-    for (Symbol *s = st->head; s != NULL; s = s->next) {
-        if (sym_count >= 16) break;
+    for(Symbol *s = st->head; s != NULL; s = s->next) {
+        if (sym_count >= 32) break;
         uint32_t name_offset = (uint32_t)strtab_len;
         strcpy(&strtab_data[strtab_len], s->name);
         strtab_len += strlen(s->name) + 1;
 
         syms[sym_count].st_name = name_offset;
-        syms[sym_count].st_info = ELF64_ST_INFO(s->is_global ? STB_GLOBAL : STB_LOCAL, STB_NOTYPE);
+
+        // --- REPLACE THE ELF64_ST_INFO LINE HERE ---
+        uint8_t bind = s->is_global ? 1 : 0; // 1 = STB_GLOBAL, 0 = STB_LOCAL
+        uint8_t type = 0;                    // 0 = STT_NOTYPE
+        syms[sym_count].st_info = (uint8_t)((bind << 4) | (type & 0x0F));
+        //
+
         syms[sym_count].st_other = 0;
         syms[sym_count].st_shndx = s->section_idx;
         syms[sym_count].st_value = s->offset;
@@ -70,22 +88,26 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     shdrs[3].sh_addralign = 16;
 
     // .rela.text (Index 4)
-    shdrs[4].sh_name = 18;
-    shdrs[4].sh_type = SHT_RELA;
-    shdrs[4].sh_offset = offset;
-    shdrs[4].sh_size = prog->rela_count * sizeof(Elf64_Rela);
-    shdrs[4].sh_link = 5; // Points to SHT_SYMTAB (.symtab)
-    shdrs[4].sh_info = 1; // Relocations apply to section 1 (.text)
-    shdrs[4].sh_addralign = 8;
-    shdrs[4].sh_entsize = sizeof(Elf64_Rela);
-    offset += shdrs[4].sh_size;
+    if (prog->rela_count > 0) {
+        offset = (offset + 7) & ~7; // align 8
+        shdrs[4].sh_name = 18;
+        shdrs[4].sh_type = SHT_RELA;
+        shdrs[4].sh_offset = offset;
+        shdrs[4].sh_size = prog->rela_count * sizeof(Elf64_Rela);
+        shdrs[4].sh_link = 5;
+        shdrs[4].sh_info = 1;
+        shdrs[4].sh_addralign = 8;
+        shdrs[4].sh_entsize = sizeof(Elf64_Rela);
+        offset += shdrs[4].sh_size;
+    }
 
     // .symtab (Index 5)
+    offset = (offset + 7) & ~7; // align 8
     shdrs[5].sh_name = 29;
     shdrs[5].sh_type = SHT_SYMTAB;
     shdrs[5].sh_offset = offset;
     shdrs[5].sh_size = sym_count * sizeof(Elf64_Sym);
-    shdrs[5].sh_link = 6; // Points to SHT_STRTAB (.strtab)
+    shdrs[5].sh_link = 6;
     shdrs[5].sh_info = 1;
     shdrs[5].sh_addralign = 8;
     shdrs[5].sh_entsize = sizeof(Elf64_Sym);
@@ -107,17 +129,20 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     shdrs[7].sh_addralign = 1;
     offset += shstrtab_len;
 
+    // Section header table must be 8-byte aligned
+    offset = (offset + 7) & ~7;
+
     // ELF File Header
     Elf64_Ehdr ehdr;
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
-    ehdr.e_ident[EI_MAG0] = ELFMAG0;
-    ehdr.e_ident[EI_MAG1] = ELFMAG1;
-    ehdr.e_ident[EI_MAG2] = ELFMAG2;
-    ehdr.e_ident[EI_MAG3] = ELFMAG3;
-    ehdr.e_ident[EI_CLASS] = ELFCLASS64;
-    ehdr.e_ident[EI_DATA] = ELFDATA2LSB;
-    ehdr.e_ident[EI_VERSION] = EV_CURRENT;
-    ehdr.e_ident[EI_MOSABI] = ELFOSABI_SYSV;
+    ehdr.e_ident[0] = 0x7F;
+    ehdr.e_ident[1] = 'E';
+    ehdr.e_ident[2] = 'L';
+    ehdr.e_ident[3] = 'F';
+    ehdr.e_ident[4] = 2; // ELFCLASS64
+    ehdr.e_ident[5] = 1; // ELFDATA2LSB
+    ehdr.e_ident[6] = 1; // EV_CURRENT
+    ehdr.e_ident[7] = 0; // ELFOSABI_SYSV
     ehdr.e_type = ET_REL;
     ehdr.e_machine = EM_X86_64;
     ehdr.e_version = EV_CURRENT;
@@ -127,22 +152,36 @@ void write_elf64_object(const char *filename, Encoded_Program *prog, Symbol_Tabl
     ehdr.e_shnum = 8;
     ehdr.e_shstrndx = 7;
 
-    // SEQUENTIAL WRITE
+    // WRITING DATA TO DISK WITH PROPER PADDING
+    uint64_t cur = 0;
     fwrite(&ehdr, 1, sizeof(Elf64_Ehdr), f);
+    cur += sizeof(Elf64_Ehdr);
 
     if (prog->text_len > 0) {
         fwrite(prog->text_bytes, 1, prog->text_len, f);
+        cur += prog->text_len;
     }
     if (prog->data_len > 0) {
         fwrite(prog->data_bytes, 1, prog->data_len, f);
+        cur += prog->data_len;
     }
     if (prog->rela_count > 0) {
+        cur = align_file_offset(f, cur, 8);
         fwrite(prog->relas, 1, shdrs[4].sh_size, f);
+        cur += shdrs[4].sh_size;
     }
 
+    cur = align_file_offset(f, cur, 8);
     fwrite(syms, 1, shdrs[5].sh_size, f);
+    cur += shdrs[5].sh_size;
+
     fwrite(strtab_data, 1, strtab_len, f);
+    cur += strtab_len;
+
     fwrite(shstrtab_data, 1, shstrtab_len, f);
+    cur += shstrtab_len;
+
+    align_file_offset(f, cur, 8);
     fwrite(shdrs, 1, sizeof(shdrs), f);
 
     fclose(f);

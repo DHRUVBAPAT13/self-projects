@@ -50,6 +50,16 @@
 #define STB_GLOBAL 1
 #define STB_NOTYPE 0
 
+#ifndef STT_NOTYPE
+#define STT_NOTYPE  0
+#endif
+#ifndef STT_OBJECT
+#define STT_OBJECT  1
+#endif
+#ifndef STT_FUNC
+#define STT_FUNC    2
+#endif
+
 #define ELF64_ST_INFO(bind, type)   (((bind) << 4) + ((type) & 0xf))
 #define ELF64_R_INFO(sym, type) ((((uint64_t)(sym)) << 32) + (uint32_t)(type))
 
