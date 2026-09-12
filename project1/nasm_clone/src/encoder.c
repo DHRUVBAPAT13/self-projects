@@ -5,11 +5,11 @@
 
 void encode_program_init(Encoded_Program *prog){
     prog->text_capacity = 4096;
-    prog->text_bytes = (uint8_t*)malloc(sizeof(prog->text_capacity));
+    prog->text_bytes = (uint8_t*)malloc(prog->text_capacity);
     prog->text_len = 0;
 
     prog->data_capacity = 4096;
-    prog->data_bytes = (uint8_t*)malloc(sizeof(prog->data_capacity));
+    prog->data_bytes = (uint8_t*)malloc(prog->data_capacity);
     prog->data_len = 0;
 
     prog->bss_len = 0;
@@ -22,7 +22,7 @@ void encode_program_init(Encoded_Program *prog){
 static void emit_text_byte(Encoded_Program *prog, uint8_t byte){
     if(prog->text_len >= prog->text_capacity){
         prog->text_capacity *= 2;
-        prog->text_bytes = (uint8_t*)realloc(prog->text_bytes, prog->data_capacity);
+        prog->text_bytes = (uint8_t*)realloc(prog->text_bytes, prog->text_capacity);
     }
     prog->text_bytes[prog->text_len++] = byte;
 }
@@ -60,7 +60,7 @@ void encode_ast(Instruction_Node *ast, Symbol_Table *st, Encoded_Program *out){
             continue;
         }
 
-        if(strncpy(curr->mnemonic, "res", 3) == 0){
+        if(strncmp(curr->mnemonic, "res", 3) == 0){
             out->bss_len += curr->raw_data_len;
         }
 
@@ -70,11 +70,11 @@ void encode_ast(Instruction_Node *ast, Symbol_Table *st, Encoded_Program *out){
             Operand *src = &curr->ops[1];
 
             // mov reg64, imm64 (or label address) -> REX.W (0x48) | 0xB8 + reg | 8-byte imm
-            if(dest->type == OP_REG && dest->size == 8 && (src->type == OP_IMM || src->type == OP_LABRL_REF)){
+            if(dest->type == OP_REG && dest->size == 8 && (src->type == OP_IMM || src->type == OP_LABEL_REF)){
                 emit_text_byte(out, 0x48);
                 emit_text_byte(out, 0xb8 + (dest->reg_num & 0x07));
 
-                if(src->type == OP_LABRL_REF){
+                if(src->type == OP_LABEL_REF){
                     add_relocation(out, out->text_len, 2, R_X86_64_64, 0);  // 2: typically .data symbol index
                     uint64_t placeholder = 0;
                     emit_text_bytes(out, (uint8_t*)&placeholder, sizeof(uint64_t));

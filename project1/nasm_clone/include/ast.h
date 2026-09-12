@@ -9,7 +9,7 @@ typedef enum{
     OP_NONE, 
     OP_REG,     // rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp
     OP_IMM,     // 1, 60, 0x10, etc.
-    OP_LABRL_REF        // Symbol label reference (e.g. msg, _start)
+    OP_LABEL_REF        // Symbol label reference (e.g. msg, _start)
 
 } Operand_Type;
 

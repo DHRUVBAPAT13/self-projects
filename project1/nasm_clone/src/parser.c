@@ -53,7 +53,7 @@ static Operand parse_operand(Lexer *l){
             return op;
         }
 
-        op.type = OP_LABRL_REF;
+        op.type = OP_LABEL_REF;
         strncpy(op.label, tok.text, sizeof(op.label)-1);
         return op;
     }
