@@ -1,43 +1,20 @@
 {
-  "name": "Fedora Multi-Language & Low-Level Dev",
+  "name": "RHEL-Fedora Multi-Language Dev",
   "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
+    "dockerfile": "Dockerfile"
   },
-  
   "remoteUser": "vscode",
-
   "customizations": {
     "vscode": {
       "extensions": [
-        // C / C++ & Assembly
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
-        "dan-c-underwood.arm",
         "13xforever.language-x86-64-assembly",
-
-        // Go
         "golang.go",
-
-        // Java
         "vscjava.vscode-java-pack",
-
-        // Python
         "ms-python.python",
-        "ms-python.vscode-pylance",
-
-        // C# / .NET
         "ms-dotnettools.csdevkit",
-        "ms-dotnettools.csharp",
-
-        // JavaScript / TypeScript
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-
-        // Git & Productivity
-        "eamodio.gitlens",
-        "tamasfe.even-better-toml",
-        "redhat.vscode-yaml"
+        "dbaeumer.vscode-eslint"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -45,18 +22,6 @@
       }
     }
   },
-
-  // Lifecycle hook running our modular setup script
   "postCreateCommand": "bash .devcontainer/setup.sh",
-
-  // Common application ports exposed
-  "forwardPorts": [3000, 5000, 8080],
-
-  "mounts": [
-    {
-      "source": "codespace-bashhistory",
-      "target": "/home/vscode/.bash_history",
-      "type": "volume"
-    }
-  ]
+  "forwardPorts": [3000, 5000, 8080]
 }

@@ -1,29 +1,14 @@
-FROM fedora:39
+FROM mcr.microsoft.com/devcontainers/base:ubi9
 
-# 1. Install base utilities, build toolchains, and compilers
+# Install Assembly, Linkers, C/C++, Java, Go, Python, and Developer utilities via dnf
 RUN dnf install -y \
-    git \
-    curl \
-    wget \
-    tar \
-    unzip \
-    which \
-    procps-ng \
-    util-linux \
-    shadow-utils \
-    sudo \
-    # Assembly & Linkers
     nasm \
     binutils \
-    # C / C++ Toolchain & Debuggers
     gcc \
     gcc-c++ \
     make \
     cmake \
     gdb \
-    lldb \
-    valgrind \
-    # Languages & Runtimes
     golang \
     java-latest-openjdk-devel \
     maven \
@@ -34,7 +19,6 @@ RUN dnf install -y \
     python3-devel \
     nodejs \
     npm \
-    # Extra developer CLI tools
     jq \
     tmux \
     ripgrep \
@@ -42,13 +26,5 @@ RUN dnf install -y \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
-# 2. Install TypeScript & core node global packages
+# Install TypeScript globally
 RUN npm install -g typescript ts-node yarn pnpm
-
-# 3. Create non-root 'vscode' user with passwordless sudo
-RUN useradd -m -s /bin/bash vscode \
-    && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/vscode \
-    && chmod 0440 /etc/sudoers.d/vscode
-
-USER vscode
-WORKDIR /home/vscode
