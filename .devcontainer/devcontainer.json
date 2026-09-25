@@ -1,6 +1,9 @@
 {
-  "name": "Full Dev Suite",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "name": "Arch Linux Multi-Language Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,10 +17,10 @@
         "dbaeumer.vscode-eslint"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true
       }
     }
   },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y nasm binutils build-essential gdb && bash .devcontainer/setup.sh",
-  "remoteUser": "codespace"
+  "forwardPorts": [3000, 5000, 8080]
 }
