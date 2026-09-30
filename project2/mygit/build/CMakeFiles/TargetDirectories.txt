@@ -1,3 +1,0 @@
-C:/Users/Dhruv/Documents/project2/mygit/build/CMakeFiles/mygit.dir
-C:/Users/Dhruv/Documents/project2/mygit/build/CMakeFiles/edit_cache.dir
-C:/Users/Dhruv/Documents/project2/mygit/build/CMakeFiles/rebuild_cache.dir

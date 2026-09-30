@@ -1,3 +1,0 @@
-Code written on feature-x
-A freshly added unstaged line
-This line is not staged yet
