@@ -1,0 +1,46 @@
+1. The C++ Project Source Structure :
+
+mygit/
+├── CMakeLists.txt              # Build configuration & dependency linking
+├── README.md
+├── include/
+│   ├── cli.hpp                 # Command-line parsing & dispatch
+│   ├── repository.hpp          # Repo init, root discovery, path helpers
+│   ├── object.hpp              # Abstract base object & serialization
+│   ├── blob.hpp                # Blob object implementation
+│   ├── tree.hpp                # Tree object (directory snapshot) & entries
+│   ├── commit.hpp              # Commit metadata & parent pointer parser
+│   ├── refs.hpp                # HEAD & branch reference management
+│   ├── miniz.h                # for important functions
+│   └── utils.hpp               # SHA-1 hashing, zlib compress/decompress
+├── src/
+│   ├── main.cpp                # Entry point (dispatches commands like init, log)
+│   ├── cli.cpp
+│   ├── repository.cpp
+│   ├── object.cpp
+│   ├── tree.cpp
+│   ├── commit.cpp
+│   ├── refs.cpp
+│   └── utils.cpp
+│   ├── miniz.c				# works with miniz.h
+└── tests/
+    └── test_objects.cpp        # Unit tests verifying round-trip hash & compression
+
+
+2. The Internal Metadata Structure (.mygit/)
+
+my-project/
+├── .mygit/
+│   ├── HEAD                    # Plain text: "ref: refs/heads/main\n"
+│   ├── refs/
+│   │   └── heads/
+│   │       └── main            # Plain text file containing the 40-char commit hash
+│   └── objects/
+│       ├── 4b/
+│       │   └── 825dc642cb6eb...# Compressed zlib file (empty tree or file blob)
+│       ├── e6/
+│       │   └── 9de29bb2d1d64...# Compressed blob object
+│       └── a1/
+│           └── b2c3d4e5f6a7b...# Compressed commit object
+├── main.cpp                    # Tracked user file in working directory
+└── README.md                   # Tracked user file in working directory
