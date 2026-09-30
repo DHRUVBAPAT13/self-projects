@@ -14,7 +14,8 @@
         "vscjava.vscode-java-pack",
         "ms-python.python",
         "ms-dotnettools.csdevkit",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "PKief.material-icon-theme"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
