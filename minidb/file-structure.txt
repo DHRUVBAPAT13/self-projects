@@ -1,0 +1,60 @@
+minidb/
+├── CMakeLists.txt
+├── Makefile
+├── README.md
+│
+├── src/
+│   ├── include/
+│   │   ├── common/
+│   │   │   ├── config.hpp            # Constants: PAGE_SIZE (4096), INVALID_PAGE_ID, type aliases
+│   │   │   └── types.hpp             # page_id_t, frame_id_t, lsn_t, RID (Record Identifier)
+│   │   │
+│   │   ├── storage/
+│   │   │   ├── disk/
+│   │   │   │   └── disk_manager.hpp  # Layer 1: Raw 4KB block reads/writes and page allocation
+│   │   │   └── page/
+│   │   │       ├── page.hpp          # Generic 4KB in-memory page frame buffer
+│   │   │       └── slotted_page.hpp  # Layer 2: Variable-length record layout & slot directory
+│   │   │
+│   │   ├── buffer/
+│   │   │   ├── replacer.hpp          # Eviction policy interface (LRU or Clock)
+│   │   │   ├── lru_replacer.hpp      # Concrete LRU eviction implementation
+│   │   │   └── buffer_pool_manager.hpp # Layer 3: Frame cache, pinning/unpinning, dirty tracking
+│   │   │
+│   │   ├── index/
+│   │   │   ├── b_plus_tree_page.hpp  # Base header for tree nodes stored in 4KB pages
+│   │   │   ├── b_plus_tree_internal_page.hpp # Routing keys and child page pointers
+│   │   │   ├── b_plus_tree_leaf_page.hpp     # Key-value pairs and sibling links
+│   │   │   └── b_plus_tree.hpp       # Layer 4: Search, insert, split, delete algorithms
+│   │   │
+│   │   └── execution/
+│   │       ├── record.hpp            # Tuple abstraction / payload serializer
+│   │       └── table_heap.hpp        # Double-linked slotted page chains for sequential scans
+│   │
+│   ├── storage/
+│   │   ├── disk/
+│   │   │   └── disk_manager.cpp
+│   │   └── page/
+│   │       └── slotted_page.cpp
+│   │
+│   ├── buffer/
+│   │   ├── lru_replacer.cpp
+│   │   └── buffer_pool_manager.cpp
+│   │
+│   ├── index/
+│   │   ├── b_plus_tree_internal_page.cpp
+│   │   ├── b_plus_tree_leaf_page.cpp
+│   │   └── b_plus_tree.cpp
+│   │
+│   ├── execution/
+│   │   └── table_heap.cpp
+│   │
+│   └── main.cpp                      # Layer 5: REPL / interactive CLI shell
+│
+├── tests/
+│   ├── test_disk_manager.cpp         # Unit test for Layer 1
+│   ├── test_slotted_page.cpp         # Unit test for Layer 2
+│   ├── test_buffer_pool.cpp          # Unit test for Layer 3
+│   └── test_b_plus_tree.cpp          # Unit test for Layer 4
+│
+└── build/                            # Generated compilation binaries & database test files
