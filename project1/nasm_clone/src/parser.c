@@ -61,10 +61,10 @@ static Operand parse_operand(Lexer *l){
 }
 
 Instruction_Node *parse_source(Lexer *l, Symbol_Table *st){
-
     Instruction_Node *head = NULL;
     Instruction_Node *tail = NULL;
-    int current_sec_idx = 1; // default to .text section
+    int current_sec_idx = 1; // 1: .text, 2: .data, 3: .bss
+    uint64_t current_sec_offset[4] = {0, 0, 0, 0}; // Track offset per section
 
     while (1)
     {
@@ -72,15 +72,40 @@ Instruction_Node *parse_source(Lexer *l, Symbol_Table *st){
         if(tok.type == TOK_EOF) break;
         if(tok.type == TOK_NEWLINE) continue;
 
-        // Check for Label Definition (e.g. `_start:`)
-        if(tok.type == TOK_IDENTIFIER && lexer_peek(l).type == TOK_COLON){
-            lexer_next(l); // consumes ':'
-            symtab_add(st, tok.text, 0, current_sec_idx, false, true);
-            continue;
+        // Check for Label Definition:
+        // Case A: `_start:` or `msg:` (followed by colon)
+        // Case B: `msg db ...` (identifier directly followed by db/dw/dd/dq/resb)
+        bool has_label = false;
+        char label_name[64] = {0};
+
+        if(tok.type == TOK_IDENTIFIER) {
+            Token peek = lexer_peek(l);
+            if(peek.type == TOK_COLON) {
+                strncpy(label_name, tok.text, sizeof(label_name) - 1);
+                lexer_next(l); // consume ':'
+                has_label = true;
+            } else if(strcmp(peek.text, "db") == 0 || strcmp(peek.text, "dw") == 0 ||
+                      strcmp(peek.text, "dd") == 0 || strcmp(peek.text, "dq") == 0 ||
+                      strncmp(peek.text, "res", 3) == 0) {
+                strncpy(label_name, tok.text, sizeof(label_name) - 1);
+                has_label = true;
+            }
         }
 
-        // handle directives
-        if(tok.type = TOK_DIRECTIVE){
+        if(has_label) {
+            symtab_add(st, label_name, current_sec_offset[current_sec_idx], current_sec_idx, false, true);
+
+            // Peek next: if next token is newline or EOF, just continue
+            Token next_tok = lexer_peek(l);
+            if(next_tok.type == TOK_NEWLINE || next_tok.type == TOK_EOF) {
+                continue;
+            }
+            // Otherwise, get the next token on the same line (e.g. "db")
+            tok = lexer_next(l);
+        }
+
+        // Handle directives (FIXED: == instead of =)
+        if(tok.type == TOK_DIRECTIVE || tok.type == TOK_IDENTIFIER){
             if(strcmp(tok.text, "global") == 0){
                 Token sym_tok = lexer_next(l);
                 symtab_mark_global(st, sym_tok.text);
@@ -121,6 +146,9 @@ Instruction_Node *parse_source(Lexer *l, Symbol_Table *st){
                         break;
                     }
                 }
+
+                current_sec_offset[current_sec_idx] += node->raw_data_len;
+
                 if(!head) head = tail = node;
                 else {
                     tail->next = node;
@@ -129,7 +157,6 @@ Instruction_Node *parse_source(Lexer *l, Symbol_Table *st){
                 continue;
             }
 
-            // 2. added resb, resw, resd, resq handler
             if (strncmp(tok.text, "res", 3) == 0) {
                 int multiplier = 1;
                 if (strcmp(tok.text, "resw") == 0) multiplier = 2;
@@ -143,12 +170,15 @@ Instruction_Node *parse_source(Lexer *l, Symbol_Table *st){
                 strcpy(node->mnemonic, tok.text);
                 node->raw_data_len = total_bytes;
 
+                current_sec_offset[current_sec_idx] += total_bytes;
+
                 if (!head) head = tail = node;
                 else { tail->next = node; tail = node; }
                 continue;
             }
         }
 
+        // Standard instructions (mov, syscall, etc.)
         Instruction_Node *node = (Instruction_Node*)calloc(1, sizeof(Instruction_Node));
         strncpy(node->mnemonic, tok.text, sizeof(node->mnemonic)-1);
 
@@ -160,7 +190,6 @@ Instruction_Node *parse_source(Lexer *l, Symbol_Table *st){
                 lexer_next(l);  // consumes ','
                 node->ops[1] = parse_operand(l);
                 node->op_count = 2;
-
             }
         }
 
