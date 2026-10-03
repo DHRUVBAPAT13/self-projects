@@ -1,20 +1,38 @@
 {
-  "name": "Arch Linux Multi-Language Dev",
+  "name": "Rocky Linux Multi-Language Dev",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false
+    }
   },
   "remoteUser": "vscode",
   "customizations": {
     "vscode": {
       "extensions": [
+        // Your requested productivity extensions
+        "esbenp.prettier-vscode",
+        "usernamehw.errorlens",
+        "christian-kohler.path-intellisense",
+        "Gruntfuggly.todo-tree",
+
+        // Low-level & Assembly
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "13xforever.language-x86-64-assembly",
+
+        // Language Runtimes & Tooling
         "golang.go",
         "vscjava.vscode-java-pack",
         "ms-python.python",
         "ms-dotnettools.csdevkit",
         "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+
+        // UI & Themes
         "PKief.material-icon-theme"
       ],
       "settings": {
@@ -23,5 +41,6 @@
       }
     }
   },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   "forwardPorts": [3000, 5000, 8080]
 }

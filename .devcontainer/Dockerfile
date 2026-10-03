@@ -1,52 +1,64 @@
-FROM archlinux:latest
+FROM rockylinux:9
 
-# 1. Update pacman keys, system packages, and install VS Code Server essentials
-RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm \
-    base-devel \
+# 1. Enable EPEL and CRB (CodeReady Builder) for extra dev packages
+RUN dnf install -y epel-release \
+    && dnf config-manager --set-enabled crb \
+    && dnf clean all \
+    && dnf makecache
+
+# 2. Install toolchain with --allowerasing to resolve the curl-minimal conflict cleanly
+RUN dnf install -y --allowerasing \
     git \
     curl \
     wget \
     tar \
-    gzip \
+    unzip \
     which \
-    procps-ng \
     sudo \
-    shadow \
-    bash \
-    zsh \
+    procps-ng \
+    util-linux \
+    shadow-utils \
     # Assembly & Linkers
     nasm \
     binutils \
-    # Compilers & Debugging
+    # Compilers & Build Tools
     gcc \
-    gdb \
+    gcc-c++ \
     make \
     cmake \
-    # Runtimes & Languages
-    go \
-    jdk-openjdk \
+    gdb \
+    # Languages & Runtimes
+    golang \
+    java-21-openjdk-devel \
     maven \
-    gradle \
-    dotnet-sdk \
-    python \
-    python-pip \
+    dotnet-sdk-8.0 \
+    python3 \
+    python3-pip \
+    python3-devel \
     nodejs \
     npm \
-    # Extra developer CLI tools
+    # Utilities
     gedit \
-    ripgrep \
     tmux \
     htop \
-    && pacman -Scc --noconfirm
+    ripgrep \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
 
-# 2. Install TypeScript & core node global tools
+# 3. Global Node tooling
 RUN npm install -g typescript ts-node yarn pnpm
 
-# 3. Create non-root 'vscode' user with passwordless sudo
-RUN useradd -m -s /bin/bash vscode && \
-    echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/vscode && \
-    chmod 0440 /etc/sudoers.d/vscode
+# 4. Install Starship prompt
+RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
+
+# 5. Create vscode user
+RUN useradd -m -s /bin/bash vscode \
+    && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode
 
 USER vscode
 WORKDIR /home/vscode
+
+RUN echo 'eval "$(starship init bash)"' >> ~/.bashrc \
+    && echo 'alias ls="ls --color=auto"' >> ~/.bashrc \
+    && echo 'alias ll="ls -lah --color=auto"' >> ~/.bashrc
