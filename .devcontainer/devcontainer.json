@@ -17,7 +17,7 @@
         "esbenp.prettier-vscode",
         "usernamehw.errorlens",
         "christian-kohler.path-intellisense",
-        "Gruntfuggly.todo-tree",
+        "wayou.vscode-todo-highlight",
 
         // Low-level & Assembly
         "ms-vscode.cpptools",
